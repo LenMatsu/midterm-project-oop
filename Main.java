@@ -50,10 +50,10 @@ public class Main {
     }
 
     private static void addItem() {
-        String category = Validators.readNonEmptyString(scanner, "Enter category: ");
+        String category = readCategoryChoice();
 
-        if (!Inventory.isValidCategory(category)) {
-            System.out.println("Category " + category + " does not exist!");
+        if (category == null) {
+            System.out.println("Returning to main menu.");
             return;
         }
 
@@ -73,6 +73,31 @@ public class Main {
 
         inventory.addItem(item);
         System.out.println("Item added successfully!");
+    }
+
+    private static String readCategoryChoice() {
+        while (true) {
+            System.out.println("Select category:");
+            System.out.println("1 - Clothing");
+            System.out.println("2 - Electronics");
+            System.out.println("3 - Entertainment");
+            System.out.println("0 - Back to Menu");
+            System.out.print("Enter choice: ");
+            String input = scanner.nextLine().trim();
+
+            switch (input) {
+                case "1":
+                    return "Clothing";
+                case "2":
+                    return "Electronics";
+                case "3":
+                    return "Entertainment";
+                case "0":
+                    return null;
+                default:
+                    System.out.println("Category " + input + " does not exist!");
+            }
+        }
     }
 
     private static String readUniqueId() {
@@ -124,10 +149,10 @@ public class Main {
     }
 
     private static void displayItemsByCategory() {
-        String category = Validators.readNonEmptyString(scanner, "Enter category: ");
+        String category = readCategoryChoice();
 
-        if (!Inventory.isValidCategory(category)) {
-            System.out.println("Category " + category + " does not exist!");
+        if (category == null) {
+            System.out.println("Returning to main menu.");
             return;
         }
 
