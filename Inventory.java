@@ -84,6 +84,18 @@ public class Inventory {
         return result;
     }
 
+    public List<Item> searchItems(String query) {
+        List<Item> result = new ArrayList<>();
+        for (Item item : items) {
+            boolean idMatches = item.getId().equalsIgnoreCase(query);
+            boolean nameMatches = item.getName().toLowerCase().contains(query.toLowerCase());
+            if (idMatches || nameMatches) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
     public boolean isEmpty() {
         return items.isEmpty();
     }

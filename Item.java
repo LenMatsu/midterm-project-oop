@@ -39,8 +39,8 @@ public abstract class Item {
     }
 
     public void setQuantity(int quantity) {
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative.");
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0.");
         }
         this.quantity = quantity;
     }
@@ -50,8 +50,8 @@ public abstract class Item {
     }
 
     public void setPrice(double price) {
-        if (price <= 0) {
-            throw new IllegalArgumentException("Price must be greater than 0.");
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative.");
         }
         this.price = price;
     }
