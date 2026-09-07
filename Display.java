@@ -31,12 +31,21 @@ public class Display {
         System.out.println(border);
 
         for (Item item : items) {
+            String id = truncate(item.getId(), idWidth);
+            String name = truncate(item.getName(), nameWidth);
             String quantity = String.valueOf(item.getQuantity());
             String price = String.format("%.2f", item.getPrice());
-            System.out.printf(rowFormat, item.getId(), item.getName(), quantity, price, item.getCategory());
+            System.out.printf(rowFormat, id, name, quantity, price, item.getCategory());
         }
 
         System.out.println(border);
+    }
+
+    private static String truncate(String value, int maxLength) {
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength - 3) + "...";
     }
 
     public static void printMenu() {
@@ -63,12 +72,15 @@ public class Display {
     }
 
     public static void printItemRow(Item item, boolean includeCategory) {
+        String id = truncate(item.getId(), 10);
+        String name = truncate(item.getName(), 20);
+
         if (includeCategory) {
             System.out.printf("%-10s %-20s %-10d %-10.2f %-15s%n",
-                    item.getId(), item.getName(), item.getQuantity(), item.getPrice(), item.getCategory());
+                    id, name, item.getQuantity(), item.getPrice(), item.getCategory());
         } else {
             System.out.printf("%-10s %-20s %-10d %-10.2f%n",
-                    item.getId(), item.getName(), item.getQuantity(), item.getPrice());
+                    id, name, item.getQuantity(), item.getPrice());
         }
     }
 

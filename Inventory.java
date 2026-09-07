@@ -53,7 +53,7 @@ public class Inventory {
     }
 
     public List<Item> getAllItems() {
-        return items;
+        return new ArrayList<>(items);
     }
 
     public List<Item> getSortedItems(String sortBy, String order) {
@@ -78,18 +78,6 @@ public class Inventory {
         List<Item> result = new ArrayList<>();
         for (Item item : items) {
             if (item.getQuantity() <= 5) {
-                result.add(item);
-            }
-        }
-        return result;
-    }
-
-    public List<Item> searchItems(String query) {
-        List<Item> result = new ArrayList<>();
-        for (Item item : items) {
-            boolean idMatches = item.getId().equalsIgnoreCase(query);
-            boolean nameMatches = item.getName().toLowerCase().contains(query.toLowerCase());
-            if (idMatches || nameMatches) {
                 result.add(item);
             }
         }

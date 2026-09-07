@@ -63,7 +63,7 @@ public class Main {
             String id = readUniqueId();
             String name = Validators.readNonEmptyString(scanner, "Enter name: ");
             int quantity = Validators.readPositiveInt(scanner, "Enter quantity: ");
-            double price = Validators.readNonNegativeDouble(scanner, "Enter price: ");
+            double price = Validators.readPositiveDouble(scanner, "Enter price: ");
 
             Item item;
             if (category.equalsIgnoreCase("Clothing")) {
@@ -82,11 +82,15 @@ public class Main {
     }
 
     private static String readCategoryChoice() {
-        while (true) {
+        String category = null;
+        boolean done = false;
+
+        do {
             System.out.println("Select category:");
             System.out.println("1 - Clothing");
             System.out.println("2 - Electronics");
             System.out.println("3 - Entertainment");
+            System.out.println("4 - Other (type manually)");
             System.out.print("Enter choice: ");
             String input = scanner.nextLine().trim();
 
@@ -94,15 +98,30 @@ public class Main {
                 case "1":
                 case "Clothing":
                 case "clothing":
-                    return "Clothing";
+                    category = "Clothing";
+                    done = true;
+                    break;
                 case "2":
                 case "Electronics":
                 case "electronics":
-                    return "Electronics";
+                    category = "Electronics";
+                    done = true;
+                    break;
                 case "3":
                 case "Entertainment":
                 case "entertainment":
-                    return "Entertainment";
+                    category = "Entertainment";
+                    done = true;
+                    break;
+                case "4":
+                    String typed = Validators.readNonEmptyString(scanner, "Enter category: ");
+                    if (Inventory.isValidCategory(typed)) {
+                        category = normalizeCategory(typed);
+                        done = true;
+                    } else {
+                        System.out.println("Category " + typed + " does not exist!");
+                    }
+                    break;
                 case "/":
                 case "Back":
                 case "back":
@@ -112,47 +131,73 @@ public class Main {
                 default:
                     System.out.println("Category " + input + " does not exist!");
             }
+        } while (!done);
+
+        return category;
+    }
+
+    private static String normalizeCategory(String typed) {
+        if (typed.equalsIgnoreCase("Clothing")) {
+            return "Clothing";
+        } else if (typed.equalsIgnoreCase("Electronics")) {
+            return "Electronics";
+        } else {
+            return "Entertainment";
         }
     }
 
     private static String readUniqueId() {
-        while (true) {
-            String id = Validators.readId(scanner, "Enter ID: ");
-            if (inventory.isIdTaken(id)) {
+        String id;
+        boolean unique = false;
+
+        do {
+            id = Validators.readId(scanner, "Enter ID: ");
+            unique = !inventory.isIdTaken(id);
+            if (!unique) {
                 System.out.println("This ID already exists. Please enter a different ID.");
-                continue;
             }
-            return id;
+        } while (!unique);
+
+        return id;
+    }
+
+    private static Item findItemByIdWithRetry() {
+        Item item = null;
+
+        while (item == null) {
+            String id = Validators.readId(scanner, "Enter ID: ");
+            item = inventory.findItemById(id);
+
+            if (item == null) {
+                System.out.println("Item not found!");
+                String retry = Validators.readChoice(scanner, "Try again or go back to menu? (1 - Retry | 2 - Menu): ", "Retry", "Menu");
+                if (retry.equalsIgnoreCase("Menu")) {
+                    return null;
+                }
+            }
         }
+
+        return item;
     }
 
     private static void updateItem() {
         try {
-            Item item = null;
+            Item item = findItemByIdWithRetry();
 
-            while (item == null) {
-                String id = Validators.readId(scanner, "Enter ID: ");
-                item = inventory.findItemById(id);
-
-                if (item == null) {
-                    System.out.println("Item not found!");
-                    String retry = Validators.readChoice(scanner, "Try again or go back to menu? (1 - Retry | 2 - Menu): ", "Retry", "Menu");
-                    if (retry.equalsIgnoreCase("Menu")) {
-                        return;
-                    }
-                }
+            if (item == null) {
+                return;
             }
 
             String field = Validators.readChoice(scanner, "Update Quantity or Price? (1 - Quantity | 2 - Price): ", "Quantity", "Price");
 
             if (field.equalsIgnoreCase("Quantity")) {
                 int oldValue = item.getQuantity();
-                int newValue = Validators.readPositiveInt(scanner, "Enter new quantity: ");
+                int newValue = Validators.readNonNegativeInt(scanner, "Enter new quantity: ");
                 item.setQuantity(newValue);
                 System.out.println("Quantity of Item " + item.getName() + " is updated from " + oldValue + " to " + newValue);
             } else {
                 double oldValue = item.getPrice();
-                double newValue = Validators.readNonNegativeDouble(scanner, "Enter new price: ");
+                double newValue = Validators.readPositiveDouble(scanner, "Enter new price: ");
                 item.setPrice(newValue);
                 System.out.printf("Price of Item %s is updated from %.2f to %.2f%n", item.getName(), oldValue, newValue);
             }
@@ -179,25 +224,29 @@ public class Main {
     }
 
     private static void displayItemsByCategory() {
-        String category = readCategoryChoice();
+        try {
+            String category = readCategoryChoice();
 
-        if (category == null) {
-            System.out.println("Returning to main menu.");
-            return;
-        }
+            if (category == null) {
+                System.out.println("Returning to main menu.");
+                return;
+            }
 
-        List<Item> categoryItems = inventory.getItemsByCategory(category);
+            List<Item> categoryItems = inventory.getItemsByCategory(category);
 
-        if (categoryItems.isEmpty()) {
-            System.out.println("No items found under " + category + ".");
-            return;
-        }
+            if (categoryItems.isEmpty()) {
+                System.out.println("No items found under " + category + ".");
+                return;
+            }
 
-        System.out.println();
-        System.out.println(category + " Items:");
-        Display.printTableHeader(false);
-        for (Item item : categoryItems) {
-            Display.printItemRow(item, false);
+            System.out.println();
+            System.out.println(category + " Items:");
+            Display.printTableHeader(false);
+            for (Item item : categoryItems) {
+                Display.printItemRow(item, false);
+            }
+        } catch (CancelException e) {
+            System.out.println("Cancelled. Returning to main menu.");
         }
     }
 
@@ -214,23 +263,17 @@ public class Main {
 
     private static void searchItem() {
         try {
-            String query = Validators.readNonEmptyString(scanner, "Enter ID or Name to search: ");
-            List<Item> results = inventory.searchItems(query);
+            String id = Validators.readId(scanner, "Enter ID: ");
+            Item item = inventory.findItemById(id);
 
-            if (results.isEmpty()) {
+            if (item == null) {
                 System.out.println("Item not found!");
                 return;
             }
 
-            if (results.size() == 1) {
-                System.out.println();
-                System.out.println("Item found!");
-                Display.printItemDetails(results.get(0));
-            } else {
-                System.out.println();
-                System.out.println(results.size() + " items found:");
-                Display.printItemTable(results);
-            }
+            System.out.println();
+            System.out.println("Item found!");
+            Display.printItemDetails(item);
         } catch (CancelException e) {
             System.out.println("Cancelled. Returning to main menu.");
         }
