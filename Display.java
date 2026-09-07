@@ -63,25 +63,16 @@ public class Display {
         System.out.print("Choose an option: ");
     }
 
-    public static void printTableHeader(boolean includeCategory) {
-        if (includeCategory) {
-            System.out.printf("%-10s %-20s %-10s %-10s %-15s%n", "ID", "Name", "Quantity", "Price", "Category");
-        } else {
-            System.out.printf("%-10s %-20s %-10s %-10s%n", "ID", "Name", "Quantity", "Price");
-        }
+    public static void printTableHeader() {
+        System.out.printf("%-10s %-20s %-10s %-10s%n", "ID", "Name", "Quantity", "Price");
     }
 
-    public static void printItemRow(Item item, boolean includeCategory) {
+    public static void printItemRow(Item item) {
         String id = truncate(item.getId(), 10);
         String name = truncate(item.getName(), 20);
 
-        if (includeCategory) {
-            System.out.printf("%-10s %-20s %-10d %-10.2f %-15s%n",
-                    id, name, item.getQuantity(), item.getPrice(), item.getCategory());
-        } else {
-            System.out.printf("%-10s %-20s %-10d %-10.2f%n",
-                    id, name, item.getQuantity(), item.getPrice());
-        }
+        System.out.printf("%-10s %-20s %-10d %-10.2f%n",
+                id, name, item.getQuantity(), item.getPrice());
     }
 
     public static void printItemDetails(Item item) {

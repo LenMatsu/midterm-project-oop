@@ -241,9 +241,9 @@ public class Main {
 
             System.out.println();
             System.out.println(category + " Items:");
-            Display.printTableHeader(false);
+            Display.printTableHeader();
             for (Item item : categoryItems) {
-                Display.printItemRow(item, false);
+                Display.printItemRow(item);
             }
         } catch (CancelException e) {
             System.out.println("Cancelled. Returning to main menu.");
@@ -311,4 +311,4 @@ public class Main {
         System.out.println("Low Stock Items:");
         Display.printItemTable(lowStockItems);
     }
-}
+}   
